@@ -1,58 +1,88 @@
 import { Route, Routes, Navigate } from "react-router";
-import { lazy, Suspense } from "react";
+import { lazy } from "react";
+import type { ComponentType } from "react";
 import App from "../App";
 import ProtectedRoute from "./ProtectedRoute";
 import ErrorBoundary from "../pages/ErrorBoundary/ErrorBoundary";
-import LoadingFallback from "../components/reusable/LoadingFallback";
+import SuspenseRoute from "./components/SuspenseRoute";
 
-// Lazy load all components for better performance
-const Home = lazy(() => import("../pages/Home/Home"));
-const ContactUs = lazy(() => import("../pages/Contact_us/ContactUs"));
-const Portfolio = lazy(() => import("../pages/Portfolio/Portfolio"));
-const Settings = lazy(() => import("../pages/Settings/Settings"));
-const Dashboard = lazy(() => import("../pages/Dashboard/Dashboard"));
-const NotFound = lazy(() => import("../pages/NotFound/NotFound"));
-const ErrorTest = lazy(() => import("../pages/ErrorTest/ErrorTest"));
-const About = lazy(() => import("../pages/About/About"));
-const Redirect = lazy(() => import("../pages/Redirect/Redirect"));
+// Type for lazy-loaded components
+type LazyComponent = ComponentType<Record<string, never>>;
+
+// Lazy load all components for better performance and code splitting
+const Home = lazy(() => import("../pages/Home/Home")) as () => JSX.Element;
+const ContactUs = lazy(() => import("../pages/Contact_us/ContactUs")) as LazyComponent;
+const Portfolio = lazy(() => import("../pages/Portfolio/Portfolio")) as LazyComponent;
+const Settings = lazy(() => import("../pages/Settings/Settings")) as LazyComponent;
+const Dashboard = lazy(() => import("../pages/Dashboard/Dashboard")) as LazyComponent;
+const NotFound = lazy(() => import("../pages/NotFound/NotFound")) as LazyComponent;
+const ErrorTest = lazy(() => import("../pages/ErrorTest/ErrorTest")) as LazyComponent;
+const About = lazy(() => import("../pages/About/About")) as LazyComponent;
+const Redirect = lazy(() => import("../pages/Redirect/Redirect")) as LazyComponent;
 
 // Test pages
-const TestSuspense = lazy(() => import("../pages/TestSuspense/TestSuspense"));
-const TestProtected = lazy(() => import("../pages/TestProtected/TestProtected"));
-const TestRedirect = lazy(() => import("../pages/TestRedirect/TestRedirect"));
+const TestSuspense = lazy(() => import("../pages/TestSuspense/TestSuspense")) as LazyComponent;
+const TestProtected = lazy(() => import("../pages/TestProtected/TestProtected")) as LazyComponent;
+const TestRedirect = lazy(() => import("../pages/TestRedirect/TestRedirect")) as LazyComponent;
 
+/**
+ * Main routes configuration component
+ * Contains all application routes with proper error handling and lazy loading
+ */
 const RoutesApps = () => {
   // Example: Check if user is authenticated (replace with your auth logic)
+  // In production, this should come from context/store/auth hook
   const isAuthenticated = false; // Change this based on your auth state
 
   return (
     <Routes>
+      {/* Root route with App layout and error boundary */}
       <Route path="/" element={<App />} errorElement={<ErrorBoundary />}>
         {/* Index route - default home page */}
         <Route
           index
           element={
-            <Suspense fallback={<LoadingFallback />}>
+            <SuspenseRoute>
               <Home />
-            </Suspense>
+            </SuspenseRoute>
           }
         />
 
-        {/* Regular routes */}
+        {/* Regular public routes */}
         <Route
           path="contact"
           element={
-            <Suspense fallback={<LoadingFallback />}>
+            <SuspenseRoute>
               <ContactUs />
-            </Suspense>
+            </SuspenseRoute>
           }
         />
         <Route
           path="settings"
           element={
-            <Suspense fallback={<LoadingFallback />}>
+            <SuspenseRoute>
               <Settings />
-            </Suspense>
+            </SuspenseRoute>
+          }
+        />
+
+        {/* Route with query parameters example */}
+        <Route
+          path="about"
+          element={
+            <SuspenseRoute>
+              <About />
+            </SuspenseRoute>
+          }
+        />
+
+        {/* Redirect route example - programmatic redirect */}
+        <Route
+          path="redirect"
+          element={
+            <SuspenseRoute>
+              <Redirect />
+            </SuspenseRoute>
           }
         />
 
@@ -60,85 +90,65 @@ const RoutesApps = () => {
         <Route
           path="error-test"
           element={
-            <Suspense fallback={<LoadingFallback />}>
+            <SuspenseRoute>
               <ErrorTest />
-            </Suspense>
+            </SuspenseRoute>
           }
           errorElement={<ErrorBoundary />}
         />
 
-        {/* Route with query parameters example */}
-        <Route
-          path="about"
-          element={
-            <Suspense fallback={<LoadingFallback />}>
-              <About />
-            </Suspense>
-          }
-        />
-
-        {/* Redirect route example */}
-        <Route
-          path="redirect"
-          element={
-            <Suspense fallback={<LoadingFallback />}>
-              <Redirect />
-            </Suspense>
-          }
-        />
-
-        {/* Test Routes */}
+        {/* Test Routes - demonstrate various features */}
         <Route
           path="test-suspense"
           element={
-            <Suspense fallback={<LoadingFallback />}>
+            <SuspenseRoute>
               <TestSuspense />
-            </Suspense>
+            </SuspenseRoute>
           }
         />
         <Route
           path="test-protected"
           element={
-            <Suspense fallback={<LoadingFallback />}>
+            <SuspenseRoute>
               <TestProtected />
-            </Suspense>
+            </SuspenseRoute>
           }
         />
         <Route
           path="test-redirect"
           element={
-            <Suspense fallback={<LoadingFallback />}>
+            <SuspenseRoute>
               <TestRedirect />
-            </Suspense>
+            </SuspenseRoute>
           }
         />
 
-        {/* Nested routes - Projects */}
+        {/* Nested routes - Projects with dynamic parameters */}
         <Route path="projects">
           <Route
             index
             element={
-              <Suspense fallback={<LoadingFallback />}>
+              <SuspenseRoute>
                 <Portfolio />
-              </Suspense>
+              </SuspenseRoute>
             }
           />
-          {/* Route with parameter :pid */}
+          {/* Route with dynamic parameter :pid */}
           <Route
             path=":pid"
             element={
-              <Suspense fallback={<LoadingFallback />}>
+              <SuspenseRoute>
                 <Portfolio />
-              </Suspense>
+              </SuspenseRoute>
             }
           />
-          {/* Nested route with parameter */}
+          {/* Nested route with parameter and action */}
           <Route
             path=":pid/edit"
             element={
-              <Suspense fallback={<LoadingFallback />}>
+              <SuspenseRoute>
                 <Portfolio />
-              </Suspense>
+              </SuspenseRoute>
             }
           />
         </Route>
@@ -148,53 +158,53 @@ const RoutesApps = () => {
           path="dashboard"
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <Suspense fallback={<LoadingFallback />}>
+              <SuspenseRoute>
                 <Dashboard />
-              </Suspense>
+              </SuspenseRoute>
             </ProtectedRoute>
           }
         >
           <Route
             index
             element={
-              <Suspense fallback={<LoadingFallback />}>
+              <SuspenseRoute>
                 <Portfolio />
-              </Suspense>
+              </SuspenseRoute>
             }
           />
           <Route
             path="settings"
             element={
-              <Suspense fallback={<LoadingFallback />}>
+              <SuspenseRoute>
                 <Settings />
-              </Suspense>
+              </SuspenseRoute>
             }
           />
         </Route>
-
-        {/* Redirect example - old path to new path */}
-        <Route path="old-path" element={<Navigate to="/" replace />} />
 
         {/* Admin route example (protected) */}
         <Route
           path="admin"
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <Suspense fallback={<LoadingFallback />}>
+              <SuspenseRoute>
                 <Settings />
-              </Suspense>
+              </SuspenseRoute>
             </ProtectedRoute>
           }
         />
+
+        {/* Redirect example - route-level redirect (old path to new path) */}
+        <Route path="old-path" element={<Navigate to="/" replace />} />
       </Route>
 
-      {/* 404 - Catch all unmatched routes */}
+      {/* 404 - Catch all unmatched routes (must be last) */}
       <Route
         path="*"
         element={
-          <Suspense fallback={<LoadingFallback />}>
+          <SuspenseRoute>
             <NotFound />
-          </Suspense>
+          </SuspenseRoute>
         }
       />
     </Routes>
@@ -202,4 +212,3 @@ const RoutesApps = () => {
 };
 
 export default RoutesApps;
-
