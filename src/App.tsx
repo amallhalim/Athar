@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 import "./App.scss";
 import { Outlet } from "react-router";
 import Header from "./components/layout/header/Header";
@@ -9,7 +7,7 @@ function App() {
   return (
     <>
       <Header />
-      <main>
+      <main style={{ minHeight: "calc(100vh - 200px)", width: "100%" }}>
         <Outlet />
       </main>
       <Footer />

@@ -72,6 +72,42 @@ export default function Header() {
           >
             Dashboard Settings
           </Link>
+          <Link
+            to="/about?name=Visitor&tab=info"
+            style={{ textDecoration: "none", color: "#007bff" }}
+          >
+            About (Query Params)
+          </Link>
+          <Link
+            to="/redirect"
+            style={{ textDecoration: "none", color: "#007bff" }}
+          >
+            Redirect Example
+          </Link>
+          <Link
+            to="/error-test"
+            style={{ textDecoration: "none", color: "#dc3545" }}
+          >
+            Error Test
+          </Link>
+          <Link
+            to="/test-suspense"
+            style={{ textDecoration: "none", color: "#17a2b8" }}
+          >
+            Test Suspense
+          </Link>
+          <Link
+            to="/test-protected"
+            style={{ textDecoration: "none", color: "#6f42c1" }}
+          >
+            Test Protected
+          </Link>
+          <Link
+            to="/test-redirect"
+            style={{ textDecoration: "none", color: "#ffc107" }}
+          >
+            Test Redirect
+          </Link>
         </div>
       </nav>
     </header>
