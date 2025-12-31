@@ -6,10 +6,6 @@ interface SuspenseRouteProps {
   readonly fallback?: ReactNode;
 }
 
-/**
- * Wrapper component that combines Suspense with LoadingFallback
- * Reduces code duplication across routes
- */
 export default function SuspenseRoute({
   children,
   fallback = <LoadingFallback />,

@@ -108,6 +108,12 @@ export default function Header() {
           >
             Test Redirect
           </Link>
+          <Link
+            to="/loader-comparison"
+            style={{ textDecoration: "none", color: "#6f42c1" }}
+          >
+            Loader Comparison
+          </Link>
         </div>
       </nav>
     </header>
