@@ -74,7 +74,7 @@ export const routes: RouteObject[] = [
     errorElement: <ErrorBoundary />,
     handle: {
       title: "My Portfolio",
-      breadcrumb: "Home",
+      breadcrumb: "", // Empty - root route is just a layout wrapper, shouldn't appear in breadcrumbs
       icon: "🏠",
       description: "Professional portfolio website",
       layout: "default",
