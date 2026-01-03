@@ -110,65 +110,64 @@ We use **Data Router** (`createBrowserRouter`) because:
 }
 ```
 
-**Access parameter in component:**
+**Example URLs:**
+- `/projects/1` - Project with ID 1
+- `/projects/abc` - Project with ID "abc"
 
+**Access parameter in component:**
 ```tsx
-import { useParams } from "react-router";
+import { useParams } from 'react-router';
 
 function ProjectDetail() {
-  const { pid } = useParams(); // ✅ Get :pid value
-  return <div>Project {pid}</div>;
+  const { pid } = useParams<{ pid: string }>();
+  return <div>Project ID: {pid}</div>;
 }
 ```
 
-**Example URLs:**
-- `/projects/1` - Project with id=1
-- `/projects/2` - Project with id=2
-- `/projects/1/edit` - Edit project with id=1
-
 ---
 
-### 4️⃣ Nested Routes
+### 4️⃣ Nested Route
 
-**What it is:** Routes inside routes (parent-child relationship).
+**What it is:** Routes inside other routes (parent-child relationship).
 
-**When to use:** Dashboard with sub-pages, settings with tabs.
+**When to use:** Dashboard with sub-pages, settings sections.
 
 **How to add:**
 
 ```tsx
 {
   path: "dashboard",
-  element: <DashboardLayout />,  // ✅ Parent component with <Outlet />
+  element: <Dashboard />,  // Must have <Outlet />
   children: [
     {
       index: true,
-      element: <DashboardOverview />,  // ✅ Renders at /dashboard
+      element: <DashboardOverview />,
     },
     {
       path: "settings",
-      element: <DashboardSettings />,  // ✅ Renders at /dashboard/settings
+      element: <DashboardSettings />,
     },
   ],
 }
 ```
 
 **Parent component must have `<Outlet />`:**
-
 ```tsx
-function DashboardLayout() {
+import { Outlet } from 'react-router';
+
+function Dashboard() {
   return (
     <div>
       <h1>Dashboard</h1>
-      <Outlet />  {/* ✅ Child routes render here */}
+      <Outlet />  {/* Child routes render here */}
     </div>
   );
 }
 ```
 
 **Example URLs:**
-- `/dashboard` - Dashboard overview
-- `/dashboard/settings` - Dashboard settings (nested)
+- `/dashboard` - Dashboard overview (index)
+- `/dashboard/settings` - Dashboard settings
 
 ---
 
@@ -176,74 +175,74 @@ function DashboardLayout() {
 
 **What it is:** Route that requires authentication.
 
-**When to use:** Admin pages, user dashboards, private content.
+**When to use:** Admin pages, user dashboard, private content.
 
 **How to add:**
 
 ```tsx
 {
-  path: "admin",
+  path: "dashboard",
   element: (
     <ProtectedRoute isAuthenticated={isAuthenticated}>
-      <AdminPanel />
+      <Dashboard />
     </ProtectedRoute>
   ),
   handle: {
     requiresAuth: true,
-    permissions: ["admin:access"],
+    roles: ["user", "admin"],
   },
 }
 ```
 
 **ProtectedRoute component:**
-
 ```tsx
+import { Navigate } from 'react-router';
+
 function ProtectedRoute({ children, isAuthenticated }) {
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
   return <>{children}</>;
 }
 ```
 
-**Example URLs:**
-- `/dashboard` - Protected (requires auth)
-- `/admin` - Protected (requires admin role)
-
 ---
 
-### 6️⃣ Query Parameters Route
+### 6️⃣ Query Parameters
 
-**What it is:** Route that uses URL query strings (`?key=value`).
+**What it is:** URL parameters after `?` (e.g., `/search?q=react&page=1`).
 
-**When to use:** Filters, search, tabs, pagination.
+**When to use:** Search, filters, pagination.
 
-**How to add:**
-
-```tsx
-{
-  path: "about",
-  element: <About />,
-  // ✅ No special config needed - works with any route
-}
-```
-
-**Access query params in component:**
+**How to use:**
 
 ```tsx
-import { useSearchParams } from "react-router";
+import { useSearchParams } from 'react-router';
 
-function About() {
-  const [searchParams] = useSearchParams();
-  const name = searchParams.get("name");  // ✅ Get ?name=value
-  const tab = searchParams.get("tab");
+function SearchPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const query = searchParams.get('q');
+  const page = searchParams.get('page') || '1';
   
-  return <div>Hello {name}, Tab: {tab}</div>;
+  const updateQuery = (newQuery: string) => {
+    setSearchParams({ q: newQuery, page: '1' });
+  };
+  
+  return (
+    <div>
+      <input 
+        value={query || ''} 
+        onChange={(e) => updateQuery(e.target.value)} 
+      />
+      <p>Page: {page}</p>
+    </div>
+  );
 }
 ```
 
-**Example URL:**
-- `/about?name=Visitor&tab=info` - About page with query params
+**Example URLs:**
+- `/search?q=react` - Search for "react"
+- `/products?category=electronics&page=2` - Filtered products
 
 ---
 
@@ -251,45 +250,48 @@ function About() {
 
 **What it is:** Route that matches exact case.
 
-**When to use:** API endpoints, special URLs.
+**When to use:** API endpoints, special paths.
 
 **How to add:**
 
 ```tsx
 {
   path: "CaseSensitive",
-  caseSensitive: true,  // ✅ Only matches exact case
+  caseSensitive: true,  // ✅ Must match exact case
+  id: "case-sensitive-route",
   element: <CaseSensitivePage />,
 }
 ```
 
 **Example URLs:**
-- `/CaseSensitive` ✅ Matches
-- `/casesensitive` ❌ Doesn't match
+- `/CaseSensitive` ✅ - Matches
+- `/casesensitive` ❌ - Doesn't match
+- `/CASESENSITIVE` ❌ - Doesn't match
 
 ---
 
 ### 8️⃣ Redirect Route
 
-**What it is:** Route that automatically redirects to another route.
+**What it is:** Route that automatically redirects to another path.
 
-**When to use:** Old URLs, deprecated paths, URL migrations.
+**When to use:** Old URLs, deprecated routes, URL changes.
 
 **How to add:**
 
 ```tsx
 {
   path: "old-path",
-  element: <Navigate to="/new-path" replace />,  // ✅ Auto redirect
+  id: "old-path-redirect",
+  element: <Navigate to="/new-path" replace />,
 }
 ```
 
-**Example URL:**
-- `/old-path` → Redirects to `/`
+**Example:**
+- User visits `/old-path` → Automatically redirected to `/new-path`
 
 ---
 
-### 9️⃣ Catch-All Route (404)
+### 9️⃣ 404 Catch-All Route
 
 **What it is:** Route that matches any unmatched URL.
 
@@ -299,92 +301,13 @@ function About() {
 
 ```tsx
 {
-  path: "*",  // ✅ Matches everything
+  path: "*",  // ✅ Must be LAST in routes array!
+  id: "not-found",
   element: <NotFound />,
-  handle: {
-    title: "Page Not Found",
-  },
 }
 ```
 
-> ⚠️ **Important:** Must be **last** in routes array!
-
-**Example URL:**
-- `/random-url` → Shows 404 page
-
----
-
-## 🎨 Route Properties
-
-### Required Properties
-
-| Property | Description |
-|:--------:|:-----------|
-| `element` | Component to render (or `index: true` for index routes) |
-
-### Optional Properties
-
-| Property | Type | Purpose | Example |
-|:--------:|:----:|:--------|:--------|
-| `path` | `string` | URL pattern | `"about"`, `":id"` |
-| `index` | `boolean` | Default child route | `index: true` |
-| `id` | `string` | Unique identifier | `"about-page"` |
-| `element` | `ReactNode` | Component to render | `<About />` |
-| `errorElement` | `ReactNode` | Error boundary | `<ErrorBoundary />` |
-| `caseSensitive` | `boolean` | Case matching | `caseSensitive: true` |
-| `handle` | `object` | Custom metadata | `{ title: "About" }` |
-| `children` | `RouteObject[]` | Nested routes | `[{ path: "settings", ... }]` |
-
----
-
-## 📝 Step-by-Step: Adding a New Route
-
-### Example: Add a "Blog" Route
-
-#### **Step 1: Create the component**
-
-```tsx
-// src/pages/Blog/Blog.tsx
-export default function Blog() {
-  return <div>Blog Page</div>;
-}
-```
-
-#### **Step 2: Import in RoutesApps.tsx**
-
-```tsx
-import Blog from "../pages/Blog/Blog";
-```
-
-#### **Step 3: Add route configuration**
-
-```tsx
-{
-  path: "blog",
-  id: "blog",
-  caseSensitive: false,
-  errorElement: <ErrorBoundary />,
-  handle: {
-    title: "Blog",
-    breadcrumb: "Blog",
-    icon: "📝",
-    order: 7,
-  },
-  element: (
-    <SuspenseRoute>
-      <Blog />
-    </SuspenseRoute>
-  ),
-}
-```
-
-#### **Step 4: Add link in Header (optional)**
-
-```tsx
-<Link to="/blog">Blog</Link>
-```
-
-✅ **Done!** Route is now available at `/blog`
+**⚠️ Important:** Must be the last route in the array!
 
 ---
 
@@ -417,7 +340,6 @@ Default route for parent?
 ## ✅ Best Practices
 
 ### 1. Always Add `id`
-
 ```tsx
 {
   id: "about",  // ✅ Makes route identifiable
@@ -427,7 +349,6 @@ Default route for parent?
 ```
 
 ### 2. Always Add `handle`
-
 ```tsx
 {
   handle: {
@@ -439,7 +360,6 @@ Default route for parent?
 ```
 
 ### 3. Use `errorElement` for Error Handling
-
 ```tsx
 {
   errorElement: <ErrorBoundary />,  // ✅ Route-level error handling
@@ -448,7 +368,6 @@ Default route for parent?
 ```
 
 ### 4. Organize Routes Logically
-
 ```tsx
 // ✅ Group related routes
 {
@@ -461,7 +380,6 @@ Default route for parent?
 ```
 
 ### 5. Use Descriptive IDs
-
 ```tsx
 id: "project-detail"  // ✅ Clear and descriptive
 id: "pd"              // ❌ Too short, unclear
@@ -562,12 +480,3 @@ id: "pd"              // ❌ Too short, unclear
 | 8 | **Redirect** | `<Navigate to="/new" replace />` |
 | 9 | **404** | `{ path: "*", element: <NotFound /> }` |
 
-### Always Include:
-
-- ✅ `id` - Unique identifier
-- ✅ `handle` - Metadata (title, breadcrumb, icon)
-- ✅ `errorElement` - Error boundary
-
----
-
-> 🚀 This approach gives you a **maintainable, scalable routing system**!
