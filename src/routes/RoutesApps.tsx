@@ -27,6 +27,9 @@ const Dashboard = lazy(
 const NotFound = lazy(
   () => import("../pages/NotFound/NotFound")
 ) as LazyComponent;
+const ErrorTest = lazy(
+  () => import("../pages/ErrorTest/ErrorTest")
+) as LazyComponent;
 
 // ========== AUTHENTICATION STATE ==========
 /**
@@ -320,6 +323,31 @@ export const routes: RouteObject[] = [
         element: (
           <SuspenseRoute>
             <Settings />
+          </SuspenseRoute>
+        ),
+      },
+
+      /**
+       * Error Test Page
+       * Test page for demonstrating Error Boundary functionality
+       */
+      {
+        path: "error-test",
+        id: "error-test",
+        caseSensitive: false,
+        errorElement: <ErrorBoundary />,
+        handle: {
+          title: "Error Test",
+          breadcrumb: "Error Test",
+          icon: "🧪",
+          description: "Test page for Error Boundary component",
+          order: 9,
+          category: "test",
+          hidden: false, // Set to true to hide from navigation
+        } satisfies RouteHandle,
+        element: (
+          <SuspenseRoute>
+            <ErrorTest />
           </SuspenseRoute>
         ),
       },

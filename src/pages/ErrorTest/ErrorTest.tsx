@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { ReactErrorBoundary } from "../../routes/ReactErrorBoundary";
 
-function ErrorTestContent() {
+export default function ErrorTest() {
   const [shouldThrowError, setShouldThrowError] = useState(false);
 
   // This will trigger the error boundary when rendered
@@ -84,13 +83,5 @@ function ErrorTestContent() {
         </p>
       </div>
     </div>
-  );
-}
-
-export default function ErrorTest() {
-  return (
-    <ReactErrorBoundary>
-      <ErrorTestContent />
-    </ReactErrorBoundary>
   );
 }
