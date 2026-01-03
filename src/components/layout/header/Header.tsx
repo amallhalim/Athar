@@ -136,10 +136,10 @@ export default function Header() {
               color: "#495057",
             }}
           >
-            <strong>🔍 Current Route Handle:</strong>
+            {/* <strong>🔍 Current Route Handle:</strong>
             <pre style={{ margin: "5px 0 0 0", fontSize: "0.8em" }}>
               {JSON.stringify(currentHandle, null, 2)}
-            </pre>
+            </pre> */}
             <div style={{ marginTop: "5px" }}>
               <strong>Route ID:</strong> {currentMatch?.id || "No ID"} |{" "}
               <strong>Path:</strong> {location.pathname}
